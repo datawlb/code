@@ -1,0 +1,69 @@
+<new algorithms for efficient high-dimensional nonparametric classification>
+<five balltree construction algorithms>
+
+// weka source code of balltree(建树、搜索伪代码)：
+//1. build ball tree: similar to kdtree
+// m_leafNB:叶子点数阈值，
+// depth: the depth of current node in the tree(1,2..)
+// int[] indexs; 
+class BallNode{
+	int idxStart; // the node range from indexs start position
+	int idxEnd; // the node range from indexs end position
+	double[] pivot; // the node's center
+	double radius; // node's radius
+	BallNode leftNode;
+	BallNode rightNode;
+}
+
+function splitNodes(BallNode node, int depth){
+	stop(m_leafNB);
+	splitNode(node); // update node: node.left,node.right,node.radius
+	spllitNodes(node.left, depth+1);
+	spllitNodes(node.right, depth+1);
+	upate node's radius{
+		radius = (leftNode.radius + rightNode.radius + 
+			distance(leftNode.pivot,right.pivot))/2
+	}
+}
+
+function splitNode(node){
+  step1: calculate furthest1 point far from node's pivot
+  step2: calculate furthest2 point far from furthest2,and get the distance list
+  step3: update indexs[idxStart, idxEnd],(idxStart,mid) belong of furthest1,         	(mid,idxEnd) belong of furthest2
+  step4: update node infor(node.leftNode,rightNode, radius, pivot)
+}
+
+//2. search 
+function nearestNeighbours(Heap heap, BallNode node, double[] target, int k){
+	dist = distance(target, node.pivot);
+	if(heap.peak().distance < dist-node.radius)
+		return; // target到○的边界距离大于heap最大距离，则node里点都不用考虑
+	else if(non leaf非叶子节点){
+		leftPivotDist = distance(target, leftNode.pivot);
+		rightPivotDist = distance(target, rightNode.pivot);
+		leftBallDist = leftPivotDist - leftNode.radius;
+		rightBallDist = rightPivotDist - rightNode.radius;
+		if (leftBallDist < 0 && rightBallDist < 0) {
+        		if (leftPivotDist < rightPivotDist) {
+          			nearestNeighbours(heap, node.m_Left, target, k);
+          			nearestNeighbours(heap, node.m_Right, target, k);
+	        	} else {
+          			nearestNeighbours(heap, node.m_Right, target, k);
+          			nearestNeighbours(heap, node.m_Left, target, k);
+        		}
+		}else{
+        		if (leftBallDist < rightBallDist) {
+          			nearestNeighbours(heap, node.m_Left, target, k);
+          			nearestNeighbours(heap, node.m_Right, target, k);
+        		} else {
+          			nearestNeighbours(heap, node.m_Right, target, k);
+          			nearestNeighbours(heap, node.m_Left, target, k);
+        		}
+		}
+		// 是不是没必要两层if else？
+	}else if(is leaf叶子节点){
+		for(all data){
+			calculate distance,update heap,
+		}
+	}
+}
