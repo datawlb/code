@@ -37,7 +37,7 @@ class ballTree private (
       splitNode(input, node)
       localBuildBallTree(input, node.get.leftNode, depth+1)
       localBuildBallTree(input, node.get.rightNode, depth+1)
-      print(node.get.id + "  " + node.get.radius + "  ")
+      //print(node.get.id + "  " + node.get.radius + "  ")
       // weka have this step(update radius),but if use,the radius will reduce,the search result precision will reduce.
       //node.get.radius = (node.get.leftNode.get.radius+node.get.rightNode.get.radius+ballTree.getDistance(
       //node.get.leftNode.get.pivot, node.get.rightNode.get.pivot))/2
@@ -119,6 +119,26 @@ class ballTree private (
       if (node.get.leftNode.nonEmpty && node.get.rightNode.nonEmpty){ //
         val leftPivotDist = ballTree.getDistance(target, node.get.leftNode.get.pivot)
         val rightPivotDist = ballTree.getDistance(target, node.get.rightNode.get.pivot)
+        val leftBallDist = leftPivotDist - node.get.leftNode.get.radius
+        val rightBallDist = rightPivotDist - node.get.rightNode.get.radius
+        if (leftBallDist < 0 && rightBallDist < 0){
+          if (leftPivotDist < rightPivotDist){
+            kNeighbours(input, node.get.leftNode, target, k, result)
+            kNeighbours(input, node.get.rightNode, target, k, result)
+          }else{
+            kNeighbours(input, node.get.rightNode, target, k, result)
+            kNeighbours(input, node.get.leftNode, target, k, result)
+          }
+        }else{
+          if (leftBallDist < rightBallDist){
+            kNeighbours(input, node.get.leftNode, target, k, result)
+            kNeighbours(input, node.get.rightNode, target, k, result)
+          }else{
+            kNeighbours(input, node.get.rightNode, target, k, result)
+            kNeighbours(input, node.get.leftNode, target, k, result)
+          }
+        }
+        /**
         if (leftPivotDist <= rightPivotDist){
           kNeighbours(input, node.get.leftNode, target, k, result)
           kNeighbours(input, node.get.rightNode, target, k, result)
@@ -126,11 +146,12 @@ class ballTree private (
           kNeighbours(input, node.get.rightNode, target, k, result)
           kNeighbours(input, node.get.leftNode, target, k, result)
         }
+          */
       }else if(node.get.leftNode.nonEmpty || node.get.rightNode.nonEmpty){ //
         throw new Exception("This node only one leaf, Unreasonable!")
       }else if(node.get.leftNode.isEmpty && node.get.rightNode.isEmpty){ //
         println(node.get.id)
-        for (i <- node.get.idxStart until node.get.idxEnd){
+        for (i <- node.get.idxStart until node.get.idxEnd + 1){
           val dist = ballTree.getDistance(target, input(this.indexs(i)))
           if (dist < result.head.distance){
             result(0) = new searchedPoint(this.indexs(i), dist)
@@ -212,6 +233,11 @@ object ballTree extends Serializable{
              ): ArrayBuffer[Array[searchedPoint]] = {
     val bt = new ballTree(minLeafNB, input.length)
     val root = bt.buildBallTree(input)
+    val searchMap = scala.collection.mutable.Map[Int, Array[Double]]()
+    root.get.preOrder(root, searchMap)
+    println("treesize:" + searchMap.size)
+    searchMap.toArray.sortBy(_._1).foreach(x => print(x._1 + " "))
+    println("")
     val result = new ArrayBuffer[Array[searchedPoint]]()
     test.foreach{target =>
       result.append(bt.searchNN(input, root, target, k).toArray)
@@ -266,12 +292,14 @@ object ballTree extends Serializable{
     }
     val pointsArr = points.toArray
     points.clear()
-    val resBallTree = run(pointsArr, pointsArr, 10, 5)
+    val resBallTree = run(pointsArr, pointsArr.take(30), 10, 5)
 
 
     // use N2 test
     val bt = new ballTree(40, pointsArr.length)
-    val resN2 = bt.findNeighboursN2(bt.indexs.zip(pointsArr), pointsArr(1), 5)
+    for (i <- 0 until pointsArr.length)
+      bt.indexs(i) = i
+    val resN2 = bt.findNeighboursN2(bt.indexs.zip(pointsArr), pointsArr(29), 5)
 
     println(" ")
   }

@@ -12,7 +12,18 @@ class ballNode(
               var leftNode: Option[ballNode],
               var rightNode: Option[ballNode]
                 ) extends Serializable {
+  def preOrder(root: Option[ballNode], searchMap: scala.collection.mutable.Map[Int, Array[Double]]): Unit = {
+    // get
+    // val searchArray = ArrayBuffer[Array[Double]]()  val scores = scala.collection.mutable.Map(
 
+    if (root.nonEmpty) {
+      searchMap.put(root.get.id, root.get.pivot)
+      if (root.get.leftNode.nonEmpty)
+        preOrder(root.get.leftNode, searchMap)
+      if (root.get.rightNode.nonEmpty)
+        preOrder(root.get.rightNode, searchMap)
+    }
+  }
 }
 object ballNode {
   def apply(
