@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-import logistic.Instance;
+
 
 public class TestKmeans {
 	public static void main(String[] args) throws FileNotFoundException{
