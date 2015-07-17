@@ -1,7 +1,7 @@
 1. kaggle: https://www.kaggle.com/c/avazu-ctr-prediction
 	competition 3rd: https://github.com/infinitezxc/kaggle-avazu
 
-2. model: online learning FTRL-Proximal
+2. model: online learning FTRL-Proximal---Follow-the-Regularized-Leader
 include L1,L2, 
 can online learning,need not batch,
 can avoid errors and increase sparsity
